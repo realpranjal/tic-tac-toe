@@ -172,6 +172,8 @@
             .then(response => response.json())
             .then(data => {
                 Q = data;
+                console.log('Q-table loaded:', Object.keys(Q).length, 'entries');
+                console.log('Sample keys:', Object.keys(Q).slice(0, 5));
                 document.getElementById('status').textContent = 'Your turn! (X)';
                 setupBoard();
             })
@@ -213,20 +215,23 @@
         function aiMove() {
             if (gameOver) return;
 
-            const state = board.join(',');
+            const state = `[${board.join(', ')}]`;  // Match Python format: [0, 1, -1, ...]
             const legalMoves = board.map((v, i) => v === 0 ? i : -1).filter(i => i !== -1);
             
             let bestMove = legalMoves[0];
             let bestValue = -Infinity;
             
             for (const move of legalMoves) {
-                const key = `(${state})_${move}`;
+                const key = `${state}_${move}`;  // Match Python format
                 const value = Q[key] || 0;
+                
                 if (value > bestValue) {
                     bestValue = value;
                     bestMove = move;
                 }
             }
+            
+            console.log(`State: ${state}, Move: ${bestMove}, Value: ${bestValue}`);
             
             makeMove(bestMove, -1);
             
