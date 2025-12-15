@@ -1,9 +1,16 @@
-import pickle
 import random
+import json
 
 # load trained Q-table
-with open("q.pkl", "rb") as f:
-    Q = pickle.load(f)
+with open("q.json", "r") as f:
+    Q_json = json.load(f)
+
+# Convert back to tuple keys for Python
+Q = {}
+for key, value in Q_json.items():
+    state_str, action = key.rsplit('_', 1)
+    state = tuple(eval(state_str))  # Convert string back to tuple
+    Q[(state, int(action))] = value
 
 eps = 0.0   # NO exploration while playing
 
