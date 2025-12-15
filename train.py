@@ -68,3 +68,9 @@ def play_game():
 for _ in range(200000):
     play_game()
     eps *= 0.999
+
+
+
+import pickle
+with open("q.pkl", "wb") as f:
+    pickle.dump(Q, f)
