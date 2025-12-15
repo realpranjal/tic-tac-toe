@@ -1,10 +1,69 @@
 import random
 
 Q = {}
-alpha, gamma, ep = 0.1, 0.9, 0.5
+alpha, gamma, eps = 0.1, 0.9, 0.5
 
 def choose_action(state, actions):
   if random.random() < eps:
-    return random.choices(actions)
+    return random.choice(actions)
   return max(actions, key=lambda a: Q.get((state, a), 0)
 
+def update(state, action, reward, next_state, next_actions):
+  best_next = max([Q.get((next_state, a), 0) for a in next_actions], default = 0)
+  Q[(state, action)] = Q.get((state, action), 0) + alpha * (reward + gamma * best_next - Q.get((state, action), 0))
+
+                                                                                               
+def empty_board():
+  return [0] * 9
+
+def legal_moves(board):
+    return [i for i in range(9) if board[i] == 0]
+
+def play(board, move, player):
+    b = board[:]
+    b[move] = player
+    return b
+
+
+wins = [
+    (0,1,2),(3,4,5),(6,7,8),
+    (0,3,6),(1,4,7),(2,5,8),
+    (0,4,8),(2,4,6)
+]
+
+def check_win(board):
+    for a,b,c in wins:
+        s = board[a] + board[b] + board[c]
+        if s == 3:  return 1
+        if s == -3: return -1
+    if 0 not in board: return 0
+    return None
+
+
+def encode(board):
+    return tuple(board)
+
+def play_game():
+    board = empty_board()
+    player = 1
+
+    while True:
+        state = encode(board)
+        actions = legal_moves(board)
+        move = choose_action(state, actions)
+
+        board = play(board, move, player)
+        result = check_win(board)
+
+        if result is not None:
+            reward = result * player
+            update(state, move, reward, encode(board), [])
+            break
+        else:
+            update(state, move, 0, encode(board), legal_moves(board))
+
+        player *= -1
+        board = [-x for x in board]   # flip perspective
+
+for _ in range(200000):
+    play_game()
