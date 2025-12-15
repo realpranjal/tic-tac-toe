@@ -1,5 +1,4 @@
 import pickle
-import random
 
 # load trained Q-table
 with open("q.pkl", "rb") as f:
@@ -47,7 +46,7 @@ while True:
             continue
         board[move] = 1
     else:
-        state = tuple([-x for x in board])  # AI perspective
+        state = tuple(board)
         move = choose_action(state, legal_moves(board))
         board[move] = -1
         print(f"AI plays {move}")
