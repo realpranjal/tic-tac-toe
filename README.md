@@ -1,1 +1,2 @@
-AI learns the game of "Tic Tac Toe" via Q-learning
+AI plays Tic Tac Toe game
+Website: https://realpranjal.github.io/tic-tac-toe
