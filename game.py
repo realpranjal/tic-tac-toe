@@ -1,4 +1,5 @@
 import pickle
+import random
 
 # load trained Q-table
 with open("q.pkl", "rb") as f:
@@ -34,13 +35,19 @@ def print_board(b):
 
 # game loop
 board = [0]*9
-player = 1   # human = X = 1, AI = O = -1
+
+player = random.choice([1, -1])
+   
+if player == -1:
+    print("AI goes first!")
+else:
+    print("You go first!")
 
 while True:
     print_board(board)
 
     if player == 1:
-        move = int(input("Your move (0-8): "))
+        move = int(input("Your move (1-9): ")) - 1
         if move not in legal_moves(board):
             print("Invalid move")
             continue
@@ -49,7 +56,7 @@ while True:
         state = tuple(board)
         move = choose_action(state, legal_moves(board))
         board[move] = -1
-        print(f"AI plays {move}")
+        print(f"AI plays {move + 1}")
 
     result = check_win(board)
     if result is not None:
