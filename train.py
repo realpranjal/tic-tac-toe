@@ -68,7 +68,7 @@ def play_game():
         player *= -1
 
 
-N = 100_000
+N = 1_000_000
 min_eps = 0.01
 
 for i in range(1, N + 1):
