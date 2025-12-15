@@ -67,3 +67,4 @@ def play_game():
 
 for _ in range(200000):
     play_game()
+    eps *= 0.999
