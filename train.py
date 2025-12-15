@@ -84,6 +84,16 @@ for i in range(1, N + 1):
         )
 
 
-import pickle
-with open("q.pkl", "wb") as f:
-    pickle.dump(Q, f)
+
+import json
+
+Q_json = {}
+for (state, action), value in Q.items():
+    state_str = str(list(state))
+    key = f"{state_str}_{action}"
+    Q_json[key] = value
+
+with open("q.json", "w") as f:
+    json.dump(Q_json, f)
+
+print(f"Saved {len(Q_json)} Q-values to q.json")
