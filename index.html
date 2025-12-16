@@ -3,211 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe AI</title>
+    <title>Tic-Tac-Toe AI (Unbeatable)</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.9em;
-        }
-        
-        .status {
-            text-align: center;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-            min-height: 30px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 30px;
-            aspect-ratio: 1;
-        }
-        
-        .cell {
-            background: #f0f0f0;
-            border: none;
-            border-radius: 10px;
-            font-size: 3em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .cell:hover:not(:disabled) {
-            background: #e0e0e0;
-            transform: scale(1.05);
-        }
-        
-        .cell:disabled {
-            cursor: not-allowed;
-        }
-        
-        .cell.x {
-            color: #667eea;
-        }
-        
-        .cell.o {
-            color: #764ba2;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        button.control-btn {
-            padding: 12px 30px;
-            font-size: 1em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .reset-btn {
-            background: #667eea;
-            color: white;
-        }
-        
-        .reset-btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .loading {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-        }
-        
-        .winner-animation {
-            animation: pulse 0.5s ease-in-out;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        h1 { margin-bottom: 10px; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin: 20px; }
+        .cell { width: 100px; height: 100px; background: #ecf0f1; border: none; border-radius: 10px; font-size: 3em; font-weight: bold; cursor: pointer; color: #2c3e50; }
+        .cell.x { color: #e74c3c; } /* Red for X */
+        .cell.o { color: #3498db; } /* Blue for AI (O) */
+        .status { font-size: 1.5em; margin-bottom: 20px; height: 30px; }
+        button.reset { padding: 10px 20px; font-size: 1.2em; background: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #debug { margin-top: 20px; background: #34495e; padding: 10px; width: 90%; max-width: 600px; font-family: monospace; font-size: 0.9em; height: 150px; overflow-y: scroll; border: 1px solid #7f8c8d; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tic-Tac-Toe</h1>
-        <div class="subtitle">Play against Q-Learning AI</div>
-        <div id="status" class="status">Loading AI...</div>
-        <div class="board" id="board">
-            <button class="cell" data-index="0"></button>
-            <button class="cell" data-index="1"></button>
-            <button class="cell" data-index="2"></button>
-            <button class="cell" data-index="3"></button>
-            <button class="cell" data-index="4"></button>
-            <button class="cell" data-index="5"></button>
-            <button class="cell" data-index="6"></button>
-            <button class="cell" data-index="7"></button>
-            <button class="cell" data-index="8"></button>
-        </div>
-        <div class="controls">
-            <button class="control-btn reset-btn" onclick="resetGame()">New Game</button>
-        </div>
+
+    <h1>Tic-Tac-Toe AI</h1>
+    <div id="status" class="status">Loading Brain...</div>
+    
+    <div class="board">
+        <button class="cell" onclick="handleMove(0)"></button>
+        <button class="cell" onclick="handleMove(1)"></button>
+        <button class="cell" onclick="handleMove(2)"></button>
+        <button class="cell" onclick="handleMove(3)"></button>
+        <button class="cell" onclick="handleMove(4)"></button>
+        <button class="cell" onclick="handleMove(5)"></button>
+        <button class="cell" onclick="handleMove(6)"></button>
+        <button class="cell" onclick="handleMove(7)"></button>
+        <button class="cell" onclick="handleMove(8)"></button>
     </div>
+
+    <button class="reset" onclick="resetGame()">New Game</button>
+    
+    <div id="debug">Log initialized...</div>
 
     <script>
         let Q = {};
         let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let currentPlayer = 1;
+        let currentPlayer = 1; // 1 = Human, -1 = AI
         let gameOver = false;
 
-        const wins = [
-            [0,1,2], [3,4,5], [6,7,8],
-            [0,3,6], [1,4,7], [2,5,8],
-            [0,4,8], [2,4,6]
-        ];
-
-        // Load Q-table
-        fetch('q.json')
-            .then(response => response.json())
-            .then(data => {
-                Q = data;
-                console.log('Q-table loaded:', Object.keys(Q).length, 'entries');
-                console.log('Sample keys:', Object.keys(Q).slice(0, 5));
-                document.getElementById('status').textContent = 'Your turn! (X)';
-                setupBoard();
-            })
-            .catch(error => {
-                document.getElementById('status').textContent = 'Error loading AI. Please check q.json file.';
-                console.error('Error:', error);
-            });
-
-        function setupBoard() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => {
-                cell.addEventListener('click', handleCellClick);
-            });
-            
-            // Randomly decide who goes first
-            if (Math.random() < 0.5) {
-                currentPlayer = -1;
-                document.getElementById('status').textContent = "AI goes first! (O)";
-                setTimeout(aiMove, 500);
-            }
+        function log(msg) {
+            const d = document.getElementById('debug');
+            d.innerHTML = `> ${msg}<br>` + d.innerHTML;
         }
 
-        function handleCellClick(e) {
-            if (gameOver) return;
-            
-            const index = parseInt(e.target.dataset.index);
-            if (board[index] !== 0) return;
-            if (currentPlayer !== 1) return;
+        // Load the Brain
+        fetch('q.json')
+            .then(res => res.json())
+            .then(data => {
+                Q = data;
+                document.getElementById('status').innerText = "You are X. Start!";
+                log(`BRAIN LOADED: ${Object.keys(Q).length} states.`);
+                
+                // CHECK FORMAT: Does the JSON use spaces?
+                const sampleKey = Object.keys(Q)[0];
+                log(`Sample Key from JSON: "${sampleKey}"`);
+                if (sampleKey.includes("1, 0")) {
+                    log("WARNING: JSON has spaces. Adjusting logic...");
+                } else {
+                    log("SUCCESS: JSON is compact (no spaces).");
+                }
+            })
+            .catch(err => {
+                document.getElementById('status').innerText = "Error loading q.json";
+                log("ERROR: Could not find q.json. Make sure it is in the same folder.");
+            });
 
-            makeMove(index, 1);
+        function handleMove(index) {
+            if (board[index] !== 0 || gameOver || currentPlayer !== 1) return;
+            
+            makeMove(index, 1); // Human Move
             
             if (!gameOver) {
                 currentPlayer = -1;
-                document.getElementById('status').textContent = "AI's turn... (O)";
+                document.getElementById('status').innerText = "AI Thinking...";
                 setTimeout(aiMove, 300);
             }
         }
@@ -215,98 +85,99 @@
         function aiMove() {
             if (gameOver) return;
 
+            // 1. FLIP BOARD (Relativity)
+            // AI is -1. We must convert -1 to 1 so it matches the training data.
             let canonicalBoard = board.map(cell => {
-                if (cell === -1) return 1;       // AI (O) becomes 1
-                if (cell === 1) return -1;       // Human (X) becomes -1
-                return 0;                        // Empty is 0
+                if (cell === -1) return 1; // AI becomes 1
+                if (cell === 1) return -1; // Human becomes -1
+                return 0;
             });
 
-            const state = `[${canonicalBoard.join(', ')}]`;
+            // 2. GENERATE KEY (Standardize Format)
+            // JSON.stringify produces "[1,0,-1]" (Compact, No Spaces)
+            let stateStr = JSON.stringify(canonicalBoard);
 
-            const legalMoves = [];
-            board.forEach((val, idx) => {
-                if (val === 0) legalMoves.push(idx);
-            });
-
-            // Randomize moves to break ties (prevents top-left bias)
-            legalMoves.sort(() => Math.random() - 0.5);
+            // 3. FIND BEST MOVE
+            let legalMoves = [];
+            board.forEach((c, i) => { if (c === 0) legalMoves.push(i); });
             
+            // Randomize to break ties
+            legalMoves.sort(() => Math.random() - 0.5);
+
             let bestMove = legalMoves[0];
             let bestValue = -Infinity;
-            
-            for (const move of legalMoves) {
-                const key = `${state}_${move}`;  // Match Python format
-                const value = Q[key] !== undefined ? Q[key] : 0.0;
-                
-                if (value > bestValue) {
-                    bestValue = value;
+
+            log(`AI looking at state: ${stateStr}`);
+
+            for (let move of legalMoves) {
+                // Key format: "[1,0,-1]_4"
+                let key = `${stateStr}_${move}`;
+                let val = Q[key];
+
+                if (val === undefined) {
+                    // Fallback: Try WITH spaces just in case JSON is old
+                    let spacedKey = `${stateStr.split(',').join(', ')}_${move}`;
+                    val = Q[spacedKey] !== undefined ? Q[spacedKey] : 0.0;
+                }
+
+                log(`.. Move ${move}: Val=${val}`);
+
+                if (val > bestValue) {
+                    bestValue = val;
                     bestMove = move;
                 }
             }
-            
-            console.log(`AI Selected: ${bestMove} with Value: ${bestValue}`);
-            
+
+            log(`>> AI CHOSE: ${bestMove} (Value: ${bestValue})`);
             makeMove(bestMove, -1);
-            
+
             if (!gameOver) {
                 currentPlayer = 1;
-                document.getElementById('status').textContent = "Your turn! (X)";
+                document.getElementById('status').innerText = "Your Turn (X)";
             }
         }
 
         function makeMove(index, player) {
             board[index] = player;
-            const cell = document.querySelector(`[data-index="${index}"]`);
-            cell.textContent = player === 1 ? 'X' : 'O';
-            cell.classList.add(player === 1 ? 'x' : 'o');
-            cell.disabled = true;
+            let btn = document.querySelectorAll('.cell')[index];
+            btn.innerText = player === 1 ? "X" : "O";
+            btn.classList.add(player === 1 ? "x" : "o");
 
-            const result = checkWin();
-            if (result !== null) {
+            let win = checkWin();
+            if (win) {
                 gameOver = true;
-                const cells = document.querySelectorAll('.cell');
-                cells.forEach(c => c.disabled = true);
-                
-                if (result === 1) {
-                    document.getElementById('status').textContent = '🎉 You win!';
-                } else if (result === -1) {
-                    document.getElementById('status').textContent = '🤖 AI wins!';
-                } else {
-                    document.getElementById('status').textContent = '🤝 Draw!';
-                }
+                let msg = win === 1 ? "YOU WIN!" : "AI WINS!";
+                if (win === "draw") msg = "DRAW!";
+                document.getElementById('status').innerText = msg;
+                log(`GAME OVER: ${msg}`);
             }
         }
 
         function checkWin() {
-            for (const [a, b, c] of wins) {
-                const sum = board[a] + board[b] + board[c];
-                if (sum === 3) return 1;
-                if (sum === -3) return -1;
+            const wins = [
+                [0,1,2], [3,4,5], [6,7,8], 
+                [0,3,6], [1,4,7], [2,5,8], 
+                [0,4,8], [2,4,6]
+            ];
+            for (let w of wins) {
+                let s = board[w[0]] + board[w[1]] + board[w[2]];
+                if (s === 3) return 1;
+                if (s === -3) return -1;
             }
-            if (!board.includes(0)) return 0;
+            if (!board.includes(0)) return "draw";
             return null;
         }
 
         function resetGame() {
-            board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-            currentPlayer = 1;
+            board = [0,0,0,0,0,0,0,0,0];
             gameOver = false;
-            
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => {
-                cell.textContent = '';
-                cell.disabled = false;
-                cell.classList.remove('x', 'o');
+            currentPlayer = 1;
+            document.querySelectorAll('.cell').forEach(c => {
+                c.innerText = "";
+                c.className = "cell";
             });
-            
-            // Randomly decide who goes first
-            if (Math.random() < 0.5) {
-                currentPlayer = -1;
-                document.getElementById('status').textContent = "AI goes first! (O)";
-                setTimeout(aiMove, 500);
-            } else {
-                document.getElementById('status').textContent = 'Your turn! (X)';
-            }
+            document.getElementById('status').innerText = "You are X. Start!";
+            log("--- NEW GAME ---");
         }
     </script>
 </body>
