@@ -215,15 +215,28 @@
         function aiMove() {
             if (gameOver) return;
 
-            const state = `[${board.join(', ')}]`;  // Match Python format: [0, 1, -1, ...]
-            const legalMoves = board.map((v, i) => v === 0 ? i : -1).filter(i => i !== -1);
+            let canonicalBoard = board.map(cell => {
+                if (cell === -1) return 1;       // AI (O) becomes 1
+                if (cell === 1) return -1;       // Human (X) becomes -1
+                return 0;                        // Empty is 0
+            });
+
+            const state = `[${canonicalBoard.join(', ')}]`;
+
+            const legalMoves = [];
+            board.forEach((val, idx) => {
+                if (val === 0) legalMoves.push(idx);
+            });
+
+            // Randomize moves to break ties (prevents top-left bias)
+            legalMoves.sort(() => Math.random() - 0.5);
             
             let bestMove = legalMoves[0];
             let bestValue = -Infinity;
             
             for (const move of legalMoves) {
                 const key = `${state}_${move}`;  // Match Python format
-                const value = Q[key] || 0;
+                const value = Q[key] !== undefined ? Q[key] : 0.0;
                 
                 if (value > bestValue) {
                     bestValue = value;
@@ -231,7 +244,7 @@
                 }
             }
             
-            console.log(`State: ${state}, Move: ${bestMove}, Value: ${bestValue}`);
+            console.log(`AI Selected: ${bestMove} with Value: ${bestValue}`);
             
             makeMove(bestMove, -1);
             
