@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe AI (Unbeatable)</title>
+    <title>Tic-Tac-Toe AI (Universal)</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        h1 { margin-bottom: 10px; }
         .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin: 20px; }
         .cell { width: 100px; height: 100px; background: #ecf0f1; border: none; border-radius: 10px; font-size: 3em; font-weight: bold; cursor: pointer; color: #2c3e50; }
-        .cell.x { color: #e74c3c; } /* Red for X */
-        .cell.o { color: #3498db; } /* Blue for AI (O) */
-        .status { font-size: 1.5em; margin-bottom: 20px; height: 30px; }
-        button.reset { padding: 10px 20px; font-size: 1.2em; background: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #debug { margin-top: 20px; background: #34495e; padding: 10px; width: 90%; max-width: 600px; font-family: monospace; font-size: 0.9em; height: 150px; overflow-y: scroll; border: 1px solid #7f8c8d; }
+        .cell.x { color: #e74c3c; } 
+        .cell.o { color: #3498db; }
+        #status { font-size: 1.5em; margin-bottom: 20px; height: 30px; font-weight: bold; }
+        button.reset { padding: 12px 24px; font-size: 1.2em; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #debug { margin-top: 20px; background: #34495e; padding: 15px; width: 90%; max-width: 600px; font-family: monospace; font-size: 0.85em; height: 200px; overflow-y: scroll; border: 1px solid #7f8c8d; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Tic-Tac-Toe AI</h1>
-    <div id="status" class="status">Loading Brain...</div>
+    <h1>Tic-Tac-Toe</h1>
+    <div id="status">Loading Brain...</div>
     
     <div class="board">
         <button class="cell" onclick="handleMove(0)"></button>
@@ -34,13 +33,12 @@
     </div>
 
     <button class="reset" onclick="resetGame()">New Game</button>
-    
-    <div id="debug">Log initialized...</div>
+    <div id="debug">Initializing...</div>
 
     <script>
-        let Q = {};
+        let Q_Normalized = {}; // Will store keys as simple numbers: "1,0,-1,0..._4"
         let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let currentPlayer = 1; // 1 = Human, -1 = AI
+        let currentPlayer = 1; // 1=Human, -1=AI
         let gameOver = false;
 
         function log(msg) {
@@ -48,79 +46,66 @@
             d.innerHTML = `> ${msg}<br>` + d.innerHTML;
         }
 
-        // Load the Brain
+        // --- 1. UNIVERSAL LOADER ---
+        // This cleans the keys so it doesn't matter if Python used spaces or brackets.
         fetch('q.json')
             .then(res => res.json())
             .then(data => {
-                Q = data;
-                document.getElementById('status').innerText = "You are X. Start!";
-                log(`BRAIN LOADED: ${Object.keys(Q).length} states.`);
-                
-                // CHECK FORMAT: Does the JSON use spaces?
-                const sampleKey = Object.keys(Q)[0];
-                log(`Sample Key from JSON: "${sampleKey}"`);
-                if (sampleKey.includes("1, 0")) {
-                    log("WARNING: JSON has spaces. Adjusting logic...");
-                } else {
-                    log("SUCCESS: JSON is compact (no spaces).");
+                let count = 0;
+                for (let key in data) {
+                    // Strip [ ] ( ) and spaces. Keep numbers, commas, and underscore.
+                    // Example: "[1, 0, -1]_4" becomes "1,0,-1_4"
+                    let cleanKey = key.replace(/[\[\]\(\)\s]/g, '');
+                    Q_Normalized[cleanKey] = data[key];
+                    count++;
                 }
+                log(`BRAIN LOADED: ${count} states normalized.`);
+                document.getElementById('status').innerText = "You are X. Start!";
             })
             .catch(err => {
                 document.getElementById('status').innerText = "Error loading q.json";
-                log("ERROR: Could not find q.json. Make sure it is in the same folder.");
+                log("ERROR: q.json not found. Ensure it is in the same folder.");
             });
 
         function handleMove(index) {
             if (board[index] !== 0 || gameOver || currentPlayer !== 1) return;
-            
-            makeMove(index, 1); // Human Move
-            
+            makeMove(index, 1);
             if (!gameOver) {
                 currentPlayer = -1;
                 document.getElementById('status').innerText = "AI Thinking...";
-                setTimeout(aiMove, 300);
+                setTimeout(aiMove, 200);
             }
         }
 
         function aiMove() {
             if (gameOver) return;
 
-            // 1. FLIP BOARD (Relativity)
-            // AI is -1. We must convert -1 to 1 so it matches the training data.
-            let canonicalBoard = board.map(cell => {
-                if (cell === -1) return 1; // AI becomes 1
-                if (cell === 1) return -1; // Human becomes -1
-                return 0;
-            });
+            // --- 2. RELATIVITY FLIP ---
+            // AI is -1. Convert board so AI looks like 1.
+            let canonicalBoard = board.map(c => c === -1 ? 1 : (c === 1 ? -1 : 0));
 
-            // 2. GENERATE KEY (Standardize Format)
-            // JSON.stringify produces "[1,0,-1]" (Compact, No Spaces)
-            let stateStr = JSON.stringify(canonicalBoard);
+            // --- 3. GENERATE CLEAN KEY ---
+            // Create "1,0,-1,..." string to match our normalized Q-table
+            let stateStr = canonicalBoard.join(',');
 
-            // 3. FIND BEST MOVE
             let legalMoves = [];
             board.forEach((c, i) => { if (c === 0) legalMoves.push(i); });
-            
-            // Randomize to break ties
-            legalMoves.sort(() => Math.random() - 0.5);
+            legalMoves.sort(() => Math.random() - 0.5); // Shuffle for variety
 
             let bestMove = legalMoves[0];
             let bestValue = -Infinity;
 
-            log(`AI looking at state: ${stateStr}`);
+            log(`Checking State: ${stateStr}`);
 
             for (let move of legalMoves) {
-                // Key format: "[1,0,-1]_4"
+                // Construct simple key: "1,0,-1..._move"
                 let key = `${stateStr}_${move}`;
-                let val = Q[key];
+                let val = Q_Normalized[key];
 
-                if (val === undefined) {
-                    // Fallback: Try WITH spaces just in case JSON is old
-                    let spacedKey = `${stateStr.split(',').join(', ')}_${move}`;
-                    val = Q[spacedKey] !== undefined ? Q[spacedKey] : 0.0;
-                }
+                // If state is unknown, assume 0.0
+                if (val === undefined) val = 0.0;
 
-                log(`.. Move ${move}: Val=${val}`);
+                log(`.. Move ${move}: ${val}`);
 
                 if (val > bestValue) {
                     bestValue = val;
@@ -128,7 +113,7 @@
                 }
             }
 
-            log(`>> AI CHOSE: ${bestMove} (Value: ${bestValue})`);
+            log(`>> AI PLAYS: ${bestMove} (Value: ${bestValue})`);
             makeMove(bestMove, -1);
 
             if (!gameOver) {
@@ -141,41 +126,33 @@
             board[index] = player;
             let btn = document.querySelectorAll('.cell')[index];
             btn.innerText = player === 1 ? "X" : "O";
-            btn.classList.add(player === 1 ? "x" : "o");
-
+            btn.className = `cell ${player === 1 ? 'x' : 'o'}`;
+            
             let win = checkWin();
             if (win) {
                 gameOver = true;
-                let msg = win === 1 ? "YOU WIN!" : "AI WINS!";
-                if (win === "draw") msg = "DRAW!";
+                let msg = win === 1 ? "YOU WIN!" : (win === -1 ? "AI WINS!" : "DRAW!");
                 document.getElementById('status').innerText = msg;
                 log(`GAME OVER: ${msg}`);
             }
         }
 
         function checkWin() {
-            const wins = [
-                [0,1,2], [3,4,5], [6,7,8], 
-                [0,3,6], [1,4,7], [2,5,8], 
-                [0,4,8], [2,4,6]
-            ];
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             for (let w of wins) {
                 let s = board[w[0]] + board[w[1]] + board[w[2]];
                 if (s === 3) return 1;
                 if (s === -3) return -1;
             }
-            if (!board.includes(0)) return "draw";
+            if (!board.includes(0)) return 0; // 0 for Draw (different from null)
             return null;
         }
 
         function resetGame() {
-            board = [0,0,0,0,0,0,0,0,0];
+            board.fill(0);
             gameOver = false;
             currentPlayer = 1;
-            document.querySelectorAll('.cell').forEach(c => {
-                c.innerText = "";
-                c.className = "cell";
-            });
+            document.querySelectorAll('.cell').forEach(c => { c.innerText = ""; c.className = "cell"; });
             document.getElementById('status').innerText = "You are X. Start!";
             log("--- NEW GAME ---");
         }
