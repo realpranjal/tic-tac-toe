@@ -68,12 +68,13 @@
 
         function handleMove(index) {
             if (board[index] !== 0 || gameOver || currentPlayer !== 1) return;
+
+            currentPlayer = -1
             
             makeMove(index, 1);
             
             // Only let AI think if the game is NOT over
             if (!gameOver) {
-                currentPlayer = -1;
                 document.getElementById('status').innerText = "AI Thinking...";
                 setTimeout(aiMove, 200);
             }
