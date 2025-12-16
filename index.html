@@ -151,10 +151,30 @@
         function resetGame() {
             board.fill(0);
             gameOver = false;
-            currentPlayer = 1;
-            document.querySelectorAll('.cell').forEach(c => { c.innerText = ""; c.className = "cell"; });
-            document.getElementById('status').innerText = "You are X. Start!";
-            log("--- NEW GAME ---");
+            
+            // Clean the board UI
+            document.querySelectorAll('.cell').forEach(c => { 
+                c.innerText = ""; 
+                c.className = "cell"; 
+            });
+
+            // --- COIN FLIP ---
+            // Math.random() returns 0.0 to 1.0. 
+            // < 0.5 means User starts. > 0.5 means AI starts.
+            currentPlayer = Math.random() < 0.5 ? 1 : -1;
+
+            if (currentPlayer === 1) {
+                // User Starts
+                document.getElementById('status').innerText = "You are X. Start!";
+                log("--- NEW GAME (You Start) ---");
+            } else {
+                // AI Starts
+                document.getElementById('status').innerText = "AI Starts... (O)";
+                log("--- NEW GAME (AI Starts) ---");
+                
+                // Wait 500ms so it doesn't feel instant/robotic
+                setTimeout(aiMove, 500);
+            }
         }
     </script>
 </body>
